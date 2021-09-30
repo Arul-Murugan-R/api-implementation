@@ -3,14 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://fonts.googleapis.com/css?family=Salsa' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recipe Card</title>
     <style>
+        body{
+            font-family: 'Salsa';
+
+        }
         .search{
             border: 1px solid black;
             padding:8px;
             width:250px;
             height:30px;
+            font-family: 'Salsa';
             border-radius:30px;
             outline:none;
         }
@@ -20,6 +27,7 @@
             border-radius:30px;
             height:35px;
             width:100px;
+            font-family: 'Salsa';
             cursor:pointer;
         }
         .display-recipe{
@@ -30,11 +38,16 @@
         }
         .recipe-card{
             width:330px;
-            background-color:#ccc;
             border-radius:7px;
             overflow:hidden;
             margin:10px 20px;
             word-wrap:break-word;
+            font-family: 'Salsa';
+            background-color:#ccc;
+        }
+        .recipe-card:hover{
+            border:1px solid rgba(0,0,0,0.4);
+            box-shadow: 0px 0px 5px 2px #ccc;
         }
         .recipe-img{
             width:330px;
@@ -52,6 +65,7 @@
             border:0px;
             width:100px;
             cursor:pointer;
+            font-family: 'Salsa';
         }
         .recipe-info{
             padding:10px;
@@ -79,17 +93,20 @@
             left:0;
             right:0;
             bottom:0;
-            background-color:rgba(0,0,0,0.4);
+            background-color:rgba(0,0,0,0.5);
             
         }
-        .recipe-modal-scroll{
-            width:70px;
+        ::-webkit-scrollbar{
+            width:10px;
         }
-        .recipe-modal-scroll-track{
-            background-color:black;
+        ::-webkit-scrollbar-track{
+            background-color:gray;
+
         }
-        .recipe-modal-scroll-thumb{
+        ::-webkit-scrollbar-thumb{
+            border-radius: 7px;
             background-color:#ccc;
+            height:100px;
         }
         .close{
             float:right;
@@ -109,15 +126,20 @@
         }
         .recipe-modal{
             position:fixed;
-            top:0%;
-            left:20%;
-            bottom:0%;
+            top:50%;
+            left:50%;
+            transform:translate(-50%, -50%);
             background-color:orange;
             height:90%;
+            line-height:27px;
             border-radius:8px;
             padding:40px;
             overflow-y:scroll;
-            width:750px;
+            font-family: 'Salsa';
+            width:700px;
+        }
+        .recipe-modal h1{
+            line-height:36px;
         }
         .recipe-modal p{
             font-size:18px;
@@ -131,6 +153,46 @@
         .pop-img{
             width:400px;
             height:250px;
+        }
+        @media (max-width:790px){
+            .recipe-modal{
+                width:500px;
+                padding:35px;
+            }
+            .pop-img{
+                width:400px;
+                height:250px;
+            }
+        }
+        @media (max-width:600px){
+            .recipe-modal{
+                width:400px;
+                padding:30px;
+            }
+            .pop-img{
+                width:400px;
+                height:250px;
+            }
+        }
+        @media (max-width:510px){
+            .recipe-modal{
+                width:300px;
+                padding:20px;
+            }
+            .pop-img{
+                width:300px;
+                height:200px;
+            }
+        }
+        @media (max-width:400px){
+            .recipe-modal{
+                width:250px;
+                padding:20px;
+            }
+            .pop-img{
+                width:250px;
+                height:200px;
+            }
         }
     </style>
 </head>
@@ -208,12 +270,12 @@
                         // console.log(mealInstructions)
                         html=`<div class="recipe-modal">
                             <label class="close" onclick="parentNode.parentNode.style.display='none';">&times;</label><br>
+                                <h1>${mealName} Recipe Instructions</h1>
                                 <div class="modal-img">
                                     <img class="pop-img" src="${mealImg}" />
                                 </div><br>
-                                <h1>${mealName} Recipe Instructions</h1><br>
                                 <p>${mealInstructions}</p><br>
-                                <center><a target="_blank" href="${youtubeLink}" >Watch Video</a></center><br><br><br>
+                                <center><a target="_blank" href="${youtubeLink}" >Watch Video</a></center><br>
                             </div>`;
                             popupcontent.innerHTML='';
                         popupcontent.style.display="block";
@@ -238,7 +300,6 @@
             e.preventDefault();
             console.log(ingredient)
             displayCards(ingredient)
-            e.refresh()
         })
         function displayCards(ingredient){
             var api_url=`https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredient}`;
@@ -246,8 +307,42 @@
             fetch(api_url)
             .then(response =>response.json())
             .then(data=>{
-                console.log(data.length)
+                console.log(data['meals'])
                 displayContent.innerHTML='';
+                if(data.meals.length>0){
+                    for(var i=0;i<=data['meals'].length;i++){
+                        dish_name=data['meals'][i]['strMeal'];
+                        dish_img=data['meals'][i]['strMealThumb'];
+                        mealid=data['meals'][i]['idMeal'];
+                        html=`<div class="recipe-card" id="${mealid}">
+                            <div class="recipe-img">
+                                <img class="source-img" src="${dish_img}"><br>
+                            </div><br>
+                            <div class="recipe-info">
+                                <label class="title"><strong>Meal Name : ${dish_name}</label> <br>(${mealid})</strong></label>
+                                <center><button class="try-new">View More</button></center>
+                            </div>
+                        </div>`;
+                    displayContent.innerHTML = displayContent.innerHTML+html;
+                    console.log(i)
+                }
+            }
+            else{
+                displayContent.innerHTML='';
+                html="<center><h1>Recipes is not available  Search Another ingredient</h1></center>";
+                displayContent.innerHTML=displayContent.innerHTML+html;
+            }
+
+            })
+        }
+    </script>
+    <script>
+        displayContent = document.querySelector(".display-recipe")
+        var api_url=`https://www.themealdb.com/api/json/v1/1/filter.php?i=egg`;
+        fetch(api_url)
+        .then(response => response.json())
+        .then(data=>{
+            displayContent.innerHTML='';
                 if(data.meals.length>=0){
                     for(var i=0;i<=data['meals'].length;i++){
                         dish_name=data['meals'][i]['strMeal'];
@@ -265,13 +360,8 @@
                     displayContent.innerHTML = displayContent.innerHTML+html;
                 }
             }
-            else{
-                html= `<center><h1>Recipes is not available  Search Another ingredient</h1></center>`;
-                displayContent.innerHTML=html;
-            }
+        })
 
-            })
-        }
     </script>
 </body>
 </html>
